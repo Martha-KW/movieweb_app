@@ -4,16 +4,15 @@ from data_manager.sqlite_data_manager import SQLiteDataManager
 app = Flask(__name__)
 data_manager = SQLiteDataManager()
 
-@app.route('/')
+@app.route("/")
 def index():
     users = data_manager.get_all_users()
-    return render_template('index.html', users=users)
+    return render_template("user_select.html", users=users)
 
-@app.route('/user/<int:user_id>')
+@app.route("/user/<int:user_id>")
 def user_movies(user_id):
     movies = data_manager.get_user_movies(user_id)
-    return render_template('user_movies.html', user_id=user_id, movies=movies)
+    return render_template("movie_list.html", user_id=user_id, movies=movies)
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
