@@ -17,7 +17,19 @@ class SQLiteDataManager(DataManagerInterface):
         return users
 
     def get_user_movies(self, user_id):
-        pass  # specify later
+        connection = sqlite3.connect(self.db_path)
+        connection.row_factory = sqlite3.Row  # defines that the data is a dict -< blueprint
+
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT * FROM movies WHERE user_id = ?
+        """, (user_id,))
+
+        movies = cursor.fetchall()
+        connection.close()
+        return movies
+
     def update_user_movie(self, movie_id, updated_data):
         pass  # specify later, too
 
