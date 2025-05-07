@@ -1,45 +1,20 @@
-import sqlite3
-import os
 
-# Always create db in project root /data/
+import os
+from sqlalchemy import create_engine
+from models import Base  # <- dein Base kommt aus models.py
+
+# Datenbankpfad
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(BASE_DIR, "data")
-DB_PATH = os.path.join(DB_DIR, "movies.db")
-
-# Create data directory if needed
 os.makedirs(DB_DIR, exist_ok=True)
 
-# Connect to database
-conn = sqlite3.connect(DB_PATH)
-cursor = conn.cursor()
+DB_PATH = os.path.join(DB_DIR, "movies.db")
+DB_URI = f"sqlite:///{DB_PATH}"
 
-# Create tables
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE
-);
-""")
+# Engine erzeugen
+engine = create_engine(DB_URI)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS movies (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    name TEXT NOT NULL,
-    director TEXT,
-    writer TEXT,
-    actors TEXT,
-    year INTEGER,
-    rating REAL,
-    genre TEXT,
-    runtime TEXT,
-    plot TEXT,
-    comment TEXT,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-);
-""")
+# Tabellen anlegen
+Base.metadata.create_all(engine)
 
-conn.commit()
-conn.close()
-
-print(f"Database created successfully at {DB_PATH}")
+print(f"SQLAlchemy-based database created at {DB_PATH}")
