@@ -17,9 +17,13 @@ class SQLiteDataManager(DataManagerInterface):
 
     def get_user_movies(self, user_id):
         session = self.Session()
-        movies = session.query(Movie).filter_by(user_id=user_id).all()
-        session.close()
-        return movies
+        try:
+            user = session.query(User).filter_by(id=user_id).first()
+            if user:
+                return user.movies  # gibt Liste von Movie-Objekten zurück
+            return []
+        finally:
+            session.close()
 
     def update_user_movie(self, movie_id, updated_data):
         session = self.Session()
@@ -32,5 +36,6 @@ class SQLiteDataManager(DataManagerInterface):
 
 if __name__ == "__main__":
     manager = SQLiteDataManager()
-    for user in manager.get_all_users():
-        print(user.username)
+    movies = manager.get_user_movies(1)
+    for movie in movies:
+        print(movie.name, movie.director)
