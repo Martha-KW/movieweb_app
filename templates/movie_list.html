@@ -5,6 +5,10 @@
     <title>Title</title>
 </head>
 <body>
+
+<!-- inserts a new movie for the user to the database -->
+<a href="{{ url_for('add_movie', user_id=user_id) }}">➕ Add a New Movie</a>
+
 <!-- should show the preferred movies of a user -->
 {% extends "base.html" %}
 

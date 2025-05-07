@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Add New User</h1>
+  <form method="POST">
+    <label for="username">Username:</label>
+    <input type="text" name="username" required>
+    <button type="submit">Add User</button>
+  </form>
+  <a href="/">Back to user list</a>
+{% endblock %}
