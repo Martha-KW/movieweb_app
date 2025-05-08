@@ -1,0 +1,30 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env/
+
+# SQLite DB (optional)
+*.db
+
+# VSCode / PyCharm project settings
+.vscode/
+.idea/
+
+# Flask/Python settings
+instance/
+*.pyc
+*.log
+
+# Codio specific
+.codio/
+
+# OS-specific
+.DS_Store
+Thumbs.db
