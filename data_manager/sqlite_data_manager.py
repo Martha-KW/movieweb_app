@@ -11,16 +11,28 @@ class SQLiteDataManager(DataManagerInterface):
         self.Session = sessionmaker(bind=self.engine)  # Session-Instanz
 
     def get_all_users(self):
-        return self.Session.query(User).all()
+        session = self.Session()
+        try:
+            return session.query(User).all()
+        finally:
+            session.close()
 
     def get_user_movies(self, user_id):
-        user = self.Session.query(User).filter_by(id=user_id).first()
-        if user:
-            return user.movies
-        return []
+        session = self.Session()
+        try:
+            user = session.query(User).filter_by(id=user_id).first()
+            if user:
+                return user.movies
+            return []
+        finally:
+            session.close()
 
     def get_user_by_id(self, user_id):
-        return self.Session.query(User).filter_by(id=user_id).first()
+        session = self.Session()
+        try:
+            return session.query(User).filter_by(id=user_id).first()
+        finally:
+            session.close()
 
     def add_user(self, username):
         try:
@@ -56,8 +68,15 @@ class SQLiteDataManager(DataManagerInterface):
             session.close()
 
     def update_user_movie(self, movie_id, updated_data):
-        movie = self.Session.query(Movie).filter_by(id=movie_id).first()
-        if movie:
-            for key, value in updated_data.items():
-                setattr(movie, key, value)
-            self.Session.commit()
+        session = self.Session()
+        try:
+            movie = session.query(Movie).filter_by(id=movie_id).first()
+            if movie:
+                for key, value in updated_data.items():
+                    setattr(movie, key, value)
+                session.commit()
+        except Exception as e:
+            session.rollback()
+            print("Error updating movie:", e)
+        finally:
+            session.close()
