@@ -8,8 +8,6 @@
 </head>
 <body>
 
-<!-- inserts a new movie for the user to the database -->
-<a href="{{ url_for('add_movie', user_id=user_id) }}">➕ Add a New Movie</a>
 
 <!-- should show the preferred movies of a user -->
 {% extends "base.html" %}
@@ -19,8 +17,8 @@
 
   <div class="table-controls">
     <a href="{{ url_for('add_movie', user_id=user_id) }}" class="btn">➕ Add a New Movie</a>
-    <a href="{{ url_for('home') }}">Home</a>
-    <a href="{{ url_for('list_users') }}">← Back to users</a>
+    <a href="{{ url_for('home') }}" class="btn">Home</a>
+    <a href="{{ url_for('list_users') }}" class="btn">← Back to users</a>
   </div>
 
   <div class="table-container">

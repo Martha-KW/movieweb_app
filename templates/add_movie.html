@@ -25,7 +25,7 @@
     <label for="comment">Comment:</label>
     <textarea id="comment" name="comment" rows="3" cols="40"></textarea><br>
 
-    <button type="submit">Add Movie</button>
+    <a href type="submit" class="btn">Add Movie</a>
   </form>
-  <a href="{{ url_for('user_movies', user_id=user_id) }}">⬅ Back to Movie List</a>
+  <a href="{{ url_for('user_movies', user_id=user_id) }}" class="btn">⬅ Back to Movie List</a>
 {% endblock %}

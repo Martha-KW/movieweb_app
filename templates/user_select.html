@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
+{% block title %}Users MovieWeb App{% endblock %} <!-- Überschreibt den Titel -->
+
 {% block content %}
-<h1>Select a User</h1>
+<h1> Users</h1>
+<h2>Select your profile!</h2>
 <ul>
   {% for user in users %}
     <li>
@@ -14,7 +17,7 @@
 
 <!-- "Add a user" link  -->
 <p>
-  <a href="{{ url_for('add_user') }}">➕ Add New User</a>
-<a href="{{ url_for('home') }}">Home</a>
+  <a href="{{ url_for('add_user') }}" class="btn">➕ Add New User</a>
+<a href="{{ url_for('home') }}" class="btn">Home</a>
 </p>
 {% endblock %}

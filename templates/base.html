@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Database</title>
+    <title>{% block title %}Movie Database{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    {% block extra_head %}{% endblock %} <!-- Für seiten-spezifisches CSS/JS -->
 </head>
 <body>
     <div class="flash-container">
