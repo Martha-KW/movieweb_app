@@ -17,7 +17,7 @@ class Movie(Base):
     __tablename__ = "movies"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    name = Column(String, nullable=False)
+    title = Column(String, nullable=False)
     director = Column(String)
     writer = Column(String)
     actors = Column(String)

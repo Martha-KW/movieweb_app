@@ -34,23 +34,33 @@ class SQLiteDataManager(DataManagerInterface):
         finally:
             session.close()
 
+    def get_movie_by_id(self, movie_id):
+        session = self.Session()
+        try:
+            return session.query(Movie).filter_by(id=movie_id).first()
+        finally:
+            session.close()
+
     def add_user(self, username):
+        session = self.Session()  # Lokale Session erstellen
         try:
             new_user = User(username=username)
-            self.Session.add(new_user)
-            self.Session.commit()
+            session.add(new_user)
+            session.commit()
             return new_user.id
         except Exception as e:
-            self.Session.rollback()
+            session.rollback()
             print("Error adding user:", e)
             return None
+        finally:
+            session.close()  # Session immer schließen
 
     def add_movie(self, title, director, year, rating, user_id, genre=None, plot=None,
                   comment=None):
-        session = self.Session()
+        session = self.Session()  # Lokale Session
         try:
             new_movie = Movie(
-                name=title,  # wichtig: name statt title
+                title=title,  # Jetzt konsistent 'title'
                 director=director,
                 year=year,
                 rating=rating,
@@ -71,12 +81,19 @@ class SQLiteDataManager(DataManagerInterface):
         session = self.Session()
         try:
             movie = session.query(Movie).filter_by(id=movie_id).first()
-            if movie:
-                for key, value in updated_data.items():
+            if not movie:
+                return False  # Film existiert nicht
+
+            # Nur vorhandene Felder aktualisieren
+            for key, value in updated_data.items():
+                if hasattr(movie, key):
                     setattr(movie, key, value)
-                session.commit()
+
+            session.commit()
+            return True  # Erfolg
         except Exception as e:
             session.rollback()
             print("Error updating movie:", e)
+            return False
         finally:
             session.close()

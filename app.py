@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, flash, render_template, redirect, url_for, request
 
 from data_manager.sqlite_data_manager import SQLiteDataManager
 
@@ -44,6 +44,38 @@ def add_movie(user_id):
 
     return render_template('add_movie.html', user_id=user_id)
 
+
+@app.route('/user/<int:user_id>/update_movie/<int:movie_id>', methods=['GET', 'POST'])
+def update_movie(user_id, movie_id):
+    if request.method == 'POST':
+        # Nur Felder aktualisieren, die im Formular übergeben wurden
+        updated_data = {
+            "title": request.form.get("title"),
+            "director": request.form.get("director"),
+            "year": request.form.get("year", type=int),
+            "rating": request.form.get("rating", type=float),
+            "genre": request.form.get("genre"),
+            "plot": request.form.get("plot"),
+            "comment": request.form.get("comment")
+        }
+        # None-Werte entfernen (Felder, die nicht aktualisiert werden sollen)
+        updated_data = {k: v for k, v in updated_data.items() if v is not None}
+
+        success = data_manager.update_user_movie(movie_id, updated_data)
+        if not success:
+            flash("Movie not found!", "error")
+        else:
+            flash("Movie updated successfully!", "success")
+
+        return redirect(url_for('user_movies', user_id=user_id))
+
+    # GET-Request: Formular mit aktuellen Daten anzeigen
+    movie = data_manager.get_movie_by_id(movie_id)
+    if not movie:
+        flash("Movie not found!", "error")
+        return redirect(url_for('user_movies', user_id=user_id))
+
+    return render_template('edit_movie.html', user_id=user_id, movie=movie)
 
 
 if __name__ == "__main__":
