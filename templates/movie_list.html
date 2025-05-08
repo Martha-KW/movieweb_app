@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,33 +16,38 @@
 
 {% block content %}
   <h1>Favorite Movies of User {{ user_id }}</h1>
-  <table border="1">
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Director</th>
-      <th>Year</th>
-      <th>Rating</th>
-      <th>Actions</th>  <!-- Neue Spalte für Buttons -->
-    </tr>
-  </thead>
-  <tbody>
-    {% for movie in movies %}
-      <tr>
-        <td data-label="Title">{{ movie.title }}</td>
-        <td data-label="Director">{{ movie.director }}</td>
-        <td data-label="Year">{{ movie.year }}</td>
-        <td data-label="Rating">{{ movie.rating }}</td>
-        <td>
-  <a href="{{ url_for('update_movie', user_id=user_id, movie_id=movie.id) }}" class="edit-btn">Edit</a>
-</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-<!-- inserts a new movie for the user to the database -->
-<a href="{{ url_for('add_movie', user_id=user_id) }}">➕ Add a New Movie</a>
-  <a href="/">Back to users</a>
+
+  <div class="table-controls">
+    <a href="{{ url_for('add_movie', user_id=user_id) }}" class="btn">➕ Add a New Movie</a>
+    <a href="/" class="btn">← Back to users</a>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Director</th>
+          <th>Year</th>
+          <th>Rating</th>
+          <th class="actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for movie in movies %}
+          <tr>
+            <td data-label="Title">{{ movie.title }}</td>
+            <td data-label="Director">{{ movie.director or '-' }}</td>
+            <td data-label="Year">{{ movie.year or '-' }}</td>
+            <td data-label="Rating">{{ "%.1f"|format(movie.rating) if movie.rating else '-' }}</td>
+            <td data-label="Actions" class="actions">
+              <a href="{{ url_for('update_movie', user_id=user_id, movie_id=movie.id) }}" class="edit-btn">✏️ Edit</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}
 
 
