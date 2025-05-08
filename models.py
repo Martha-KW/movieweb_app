@@ -1,6 +1,6 @@
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, Text
+from sqlalchemy import CheckConstraint, Column, Integer, String, ForeignKey, Float, Text
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
@@ -22,7 +22,7 @@ class Movie(Base):
     writer = Column(String)
     actors = Column(String)
     year = Column(Integer)
-    rating = Column(Float)
+    rating = Column(Float, CheckConstraint('rating >= 0 AND rating <= 10'))
     genre = Column(String)
     runtime = Column(String)
     plot = Column(Text)
