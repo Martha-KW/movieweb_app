@@ -19,7 +19,8 @@
 
   <div class="table-controls">
     <a href="{{ url_for('add_movie', user_id=user_id) }}" class="btn">➕ Add a New Movie</a>
-    <a href="/" class="btn">← Back to users</a>
+    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('list_users') }}">← Back to users</a>
   </div>
 
   <div class="table-container">

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="welcome-container">
+    <h1>🎬 Wecome to your Web Movie Database!</h1>
+    <p>Collect your favourite movies online</p>
+    <a href="{{ url_for('list_users') }}" class="btn">Userpage</a>
+  </div>
+{% endblock %}

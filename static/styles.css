@@ -127,7 +127,23 @@ tr:hover {
   color: white;
 }
 
+/* Homepage-Styles */
+.welcome-container {
+  max-width: 800px;
+  margin: 50px auto;
+  text-align: center;
+  padding: 20px;
+}
 
+.welcome-container h1 {
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+.welcome-container p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
 
 
 /* ========== MOBILE STYLES ========== */

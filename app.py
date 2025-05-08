@@ -15,7 +15,12 @@ if not app.secret_key:
     app.secret_key = 'fallback-key-für-development'
 
 @app.route("/")
-def index():
+def home():
+    return render_template("home.html")
+
+
+@app.route("/users")
+def list_users():
     users = data_manager.get_all_users()
     return render_template("user_select.html", users=users)
 

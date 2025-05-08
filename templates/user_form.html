@@ -7,5 +7,6 @@
     <input type="text" name="username" required>
     <button type="submit">Add User</button>
   </form>
-  <a href="/">Back to user list</a>
+  <a href="{{ url_for('home') }}">Home</a>
+<a href="{{ url_for('list_users') }}">← Back to users</a>
 {% endblock %}
