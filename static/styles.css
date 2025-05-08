@@ -183,3 +183,9 @@ tr:hover {
     margin: 8px 0;
   }
 }
+
+.flash-warning {
+    background-color: #fff3cd; /* Hellgelb für Warnungen */
+    color: #856404;
+    border-left: 4px solid #ffc107;
+}

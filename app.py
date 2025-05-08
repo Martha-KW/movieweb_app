@@ -16,24 +16,35 @@ app.secret_key = os.getenv('SECRET_KEY')
 if not app.secret_key:
     app.secret_key = 'fallback-key-für-development'
 
+# app.py
+import requests
+from flask import flash
+
+
 def fetch_omdb_data(title):
-    """Holt Filmdaten von OMDb API"""
-    url = f"http://www.omdbapi.com/?apikey={OMDB_API_KEY}&t={title}"
     try:
-        response = requests.get(url)
+        url = f"http://www.omdbapi.com/?apikey={OMDB_API_KEY}&t={title}"
+        response = requests.get(url, timeout=5)  # Timeout nach 5 Sekunden
         data = response.json()
-        if data.get('Response') == 'True':
-            return {
-                'title': data.get('Title'),
-                'director': data.get('Director'),
-                'year': int(data.get('Year', 0)) if data.get('Year') else None,
-                'rating': float(data.get('imdbRating', 0)) if data.get('imdbRating') else None,
-                'genre': data.get('Genre'),
-                'plot': data.get('Plot')
-            }
+
+        # API-Fehler abfangen (z.B. zu viele Requests)
+        if data.get('Response') == 'False':
+            error_msg = data.get('Error', 'API error')
+            flash(f"OMDb API: {error_msg}", "warning")
+            return None
+
+        return {
+            'title': data.get('Title'),
+            'director': data.get('Director'),
+            'year': int(data.get('Year')) if data.get('Year') else None,
+            'rating': float(data.get('imdbRating')) if data.get('imdbRating') else None
+        }
+
+    except requests.exceptions.RequestException as e:
+        flash("Could not connect to OMDb API. Using manual input only.", "warning")
         return None
-    except Exception as e:
-        print(f"OMDb API Error: {e}")
+    except ValueError as e:
+        flash("Invalid API response format.", "error")
         return None
 
 
@@ -67,6 +78,20 @@ def add_user():
 def add_movie(user_id):
     if request.method == 'POST':
         title = request.form['title']
+        # In deiner add_movie/update_movie Route
+        title = request.form.get('title', '').strip()
+
+        # Validierung
+        if not title:
+            flash("Title cannot be empty!", "error")
+            return redirect(url_for('add_movie_form'))
+        if len(title) > 100:
+            flash("Title too long (max 100 characters)", "error")
+            return redirect(...)
+        if not all(c.isalnum() or c.isspace() for c in title):
+            flash("Only letters, numbers and spaces allowed", "error")
+            return redirect(...)
+
         omdb_data = fetch_omdb_data(title) or {}
 
         # Rating sicher parsen
