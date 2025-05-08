@@ -1,9 +1,11 @@
 from flask import Flask, flash, render_template, redirect, url_for, request
 from data_manager.sqlite_data_manager import SQLiteDataManager
 from dotenv import load_dotenv
+import requests
 import os
 
-
+load_dotenv()
+OMDB_API_KEY = os.getenv('OMDB_API_KEY')
 
 app = Flask(__name__)
 
@@ -13,6 +15,27 @@ load_dotenv()  # Lädt die .env-Datei
 app.secret_key = os.getenv('SECRET_KEY')
 if not app.secret_key:
     app.secret_key = 'fallback-key-für-development'
+
+def fetch_omdb_data(title):
+    """Holt Filmdaten von OMDb API"""
+    url = f"http://www.omdbapi.com/?apikey={OMDB_API_KEY}&t={title}"
+    try:
+        response = requests.get(url)
+        data = response.json()
+        if data.get('Response') == 'True':
+            return {
+                'title': data.get('Title'),
+                'director': data.get('Director'),
+                'year': int(data.get('Year', 0)) if data.get('Year') else None,
+                'rating': float(data.get('imdbRating', 0)) if data.get('imdbRating') else None,
+                'genre': data.get('Genre'),
+                'plot': data.get('Plot')
+            }
+        return None
+    except Exception as e:
+        print(f"OMDb API Error: {e}")
+        return None
+
 
 @app.route("/")
 def home():
@@ -44,16 +67,28 @@ def add_user():
 def add_movie(user_id):
     if request.method == 'POST':
         title = request.form['title']
-        director = request.form['director']
-        year = int(request.form['year'])
-        rating = float(request.form['rating'])
-        genre = request.form['genre']
-        plot = request.form['plot']
-        comment = request.form['comment']
+        omdb_data = fetch_omdb_data(title) or {}
 
-        data_manager.add_movie(title, director, year, rating, user_id,
-                               genre=genre, plot=plot, comment=comment)
+        # Rating sicher parsen
+        rating_input = request.form.get('rating', '')
+        try:
+            rating = float(rating_input) if rating_input else omdb_data.get('rating')
+        except ValueError:
+            flash("Invalid rating format! Use numbers like 7.5", "error")
+            return redirect(url_for('add_movie', user_id=user_id))
 
+        movie_data = {
+            'title': title,
+            'director': request.form.get('director') or omdb_data.get('director'),
+            'year': int(request.form['year']) if request.form.get('year') else omdb_data.get('year'),
+            'rating': rating,  # Verwende den geparsten Wert
+            'genre': request.form.get('genre') or omdb_data.get('genre'),
+            'plot': request.form.get('plot') or omdb_data.get('plot'),
+            'comment': request.form.get('comment', ''),
+            'user_id': user_id
+        }
+
+        data_manager.add_movie(**movie_data)
         return redirect(url_for('user_movies', user_id=user_id))
 
     return render_template('add_movie.html', user_id=user_id)
