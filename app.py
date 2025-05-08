@@ -86,5 +86,16 @@ def update_movie(user_id, movie_id):
 
     return render_template('edit_movie.html', user_id=user_id, movie=movie)
 
+
+@app.route('/user/<int:user_id>/delete_movie/<int:movie_id>', methods=['POST'])
+def delete_movie(user_id, movie_id):
+    success = data_manager.delete_movie(movie_id)  # Methode wird im nächsten Schritt erstellt
+    if success:
+        flash("Movie deleted successfully!", "success")
+    else:
+        flash("Movie not found!", "error")
+    return redirect(url_for('user_movies', user_id=user_id))
+
+
 if __name__ == "__main__":
     app.run(debug=True)

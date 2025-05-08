@@ -77,6 +77,23 @@ class SQLiteDataManager(DataManagerInterface):
         finally:
             session.close()
 
+    def delete_movie(self, movie_id):
+        session = self.Session()
+        try:
+            movie = session.query(Movie).filter_by(id=movie_id).first()
+            if movie:
+                session.delete(movie)
+                session.commit()
+                return True
+            return False
+        except Exception as e:
+            session.rollback()
+            print(f"Error deleting movie: {e}")
+            return False
+        finally:
+            session.close()
+
+
     def update_user_movie(self, movie_id, updated_data):
         session = self.Session()
         try:

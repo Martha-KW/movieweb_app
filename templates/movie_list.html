@@ -42,6 +42,9 @@
             <td data-label="Rating">{{ "%.1f"|format(movie.rating) if movie.rating else '-' }}</td>
             <td data-label="Actions" class="actions">
               <a href="{{ url_for('update_movie', user_id=user_id, movie_id=movie.id) }}" class="edit-btn">✏️ Edit</a>
+               <form action="{{ url_for('delete_movie', user_id=user_id, movie_id=movie.id) }}" method="POST" style="display: inline;">
+                 <button type="submit" class="delete-btn">🗑️ Delete</button>
+                </form>
             </td>
           </tr>
         {% endfor %}

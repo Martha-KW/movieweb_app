@@ -110,6 +110,26 @@ tr:hover {
   color: white;
 }
 
+.delete-btn {
+  color: #dc3545;
+  background: none;
+  border: 1px solid #dc3545;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.delete-btn:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+
+
+
 /* ========== MOBILE STYLES ========== */
 @media (max-width: 768px) {
   body {
