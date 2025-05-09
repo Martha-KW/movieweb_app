@@ -24,7 +24,7 @@
     <label for="comment">Comment:</label>
     <textarea id="comment" name="comment" rows="3">{{ movie.comment or '' }}</textarea><br>
 
-    <a href type="submit" class="btn">Save Changes</a>
+    <button type="submit" class="btn">Save Changes</button>
   </form>
   <a href="{{ url_for('user_movies', user_id=user_id) }}" class="btn">Cancel</a>
 {% endblock %}
