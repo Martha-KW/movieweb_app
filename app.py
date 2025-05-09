@@ -3,6 +3,7 @@ from data_manager.sqlite_data_manager import SQLiteDataManager
 from dotenv import load_dotenv
 import logging
 import os
+import requests
 
 load_dotenv()
 OMDB_API_KEY = os.getenv('OMDB_API_KEY')
@@ -46,6 +47,12 @@ def fetch_omdb_data(title):
     except ValueError as e:
         flash("Invalid API response format.", "error")
         return None
+
+
+def sanitize_omdb_data(omdb_data):
+    allowed_fields = {'title', 'director', 'year', 'rating', 'genre', 'plot'}
+    return {k: v for k, v in omdb_data.items() if k in allowed_fields}
+
 
 
 @app.route("/")
@@ -172,4 +179,5 @@ def internal_error(e):
 
 
 if __name__ == "__main__":
+
     app.run(debug=True)

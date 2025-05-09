@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from data_manager.data_manager_interface import DataManagerInterface
 from models import Base, User, Movie
+import logging
 
 class SQLiteDataManager(DataManagerInterface):
     def __init__(self, db_url="sqlite:///data/movies.db"):
@@ -50,7 +51,7 @@ class SQLiteDataManager(DataManagerInterface):
             return new_user.id
         except Exception as e:
             session.rollback()
-            print("Error adding user:", e)
+            logging.error("Error adding user: %s", e)
             return None
         finally:
             session.close()  # Session immer schließen
@@ -61,7 +62,7 @@ class SQLiteDataManager(DataManagerInterface):
         session = self.Session()  # Lokale Session
         try:
             new_movie = Movie(
-                title=title,  # Jetzt konsistent 'title'
+                title=title,
                 director=director,
                 year=year,
                 rating=rating,
@@ -74,7 +75,7 @@ class SQLiteDataManager(DataManagerInterface):
             session.commit()
         except Exception as e:
             session.rollback()
-            print("Error adding movie:", e)
+            logging.error("Error adding movie: %s", e)
         finally:
             session.close()
 
@@ -89,7 +90,7 @@ class SQLiteDataManager(DataManagerInterface):
             return False
         except Exception as e:
             session.rollback()
-            print(f"Error deleting movie: {e}")
+            logging.error("Error deleting movie: %s", e)
             return False
         finally:
             session.close()
@@ -111,7 +112,7 @@ class SQLiteDataManager(DataManagerInterface):
             return True  # Erfolg
         except Exception as e:
             session.rollback()
-            print("Error updating movie:", e)
+            logging.error("Error updating movie: %s", e)
             return False
         finally:
             session.close()
