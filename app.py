@@ -1,45 +1,41 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import flash, Flask, render_template, redirect, url_for, request
 from data_manager.sqlite_data_manager import SQLiteDataManager
 from dotenv import load_dotenv
-import logging
 import os
 import requests
 
+
 load_dotenv()
-OMDB_API_KEY = os.getenv('OMDB_API_KEY')
-
 app = Flask(__name__)
-
-data_manager = SQLiteDataManager()
-
-load_dotenv()  # Lädt die .env-Datei
 app.secret_key = os.getenv('SECRET_KEY')
 if not app.secret_key:
     app.secret_key = 'fallback-key-für-development'
-
-# app.py
-import requests
-from flask import flash
+data_manager = SQLiteDataManager()
+OMDB_API_KEY = os.getenv('OMDB_API_KEY')
 
 
 def fetch_omdb_data(title):
+    """Holt und bereinigt Daten von der OMDb API."""
     try:
         url = f"http://www.omdbapi.com/?apikey={OMDB_API_KEY}&t={title}"
-        response = requests.get(url, timeout=5)  # Timeout nach 5 Sekunden
+        response = requests.get(url, timeout=5)
         data = response.json()
 
-        # API-Fehler abfangen (z.B. zu viele Requests)
         if data.get('Response') == 'False':
             error_msg = data.get('Error', 'API error')
             flash(f"OMDb API: {error_msg}", "warning")
             return None
 
-        return {
+        # Rohdaten bereinigen
+        raw_data = {
             'title': data.get('Title'),
             'director': data.get('Director'),
-            'year': int(data.get('Year')) if data.get('Year') else None,
-            'rating': float(data.get('imdbRating')) if data.get('imdbRating') else None
+            'year': data.get('Year'),
+            'rating': data.get('imdbRating'),
+            'genre': data.get('Genre'),
+            'plot': data.get('Plot')
         }
+        return sanitize_omdb_data(raw_data)
 
     except requests.exceptions.RequestException as e:
         flash("Could not connect to OMDb API. Using manual input only.", "warning")
@@ -48,12 +44,28 @@ def fetch_omdb_data(title):
         flash("Invalid API response format.", "error")
         return None
 
-
 def sanitize_omdb_data(omdb_data):
+    """Entfernt nicht-whitelistete Felder und konvertiert Typen."""
+    if not omdb_data:
+        return {}
+
     allowed_fields = {'title', 'director', 'year', 'rating', 'genre', 'plot'}
-    return {k: v for k, v in omdb_data.items() if k in allowed_fields}
+    sanitized = {k: v for k, v in omdb_data.items() if k in allowed_fields and v is not None}
 
+    # Typkonvertierung
+    if 'year' in sanitized:
+        try:
+            sanitized['year'] = int(sanitized['year'])
+        except (ValueError, TypeError):
+            sanitized['year'] = None
 
+    if 'rating' in sanitized:
+        try:
+            sanitized['rating'] = float(sanitized['rating'])
+        except (ValueError, TypeError):
+            sanitized['rating'] = None
+
+    return sanitized
 
 @app.route("/")
 def home():
@@ -84,42 +96,27 @@ def add_user():
 @app.route('/add_movie/<int:user_id>', methods=['GET', 'POST'])
 def add_movie(user_id):
     if request.method == 'POST':
-        title = request.form['title']
-        # In deiner add_movie/update_movie Route
         title = request.form.get('title', '').strip()
 
         # Validierung
         if not title:
             flash("Title cannot be empty!", "error")
-            return redirect(url_for('add_movie_form'))
-        if len(title) > 100:
-            flash("Title too long (max 100 characters)", "error")
-            return redirect(...)
-        if not all(c.isalnum() or c.isspace() for c in title):
-            flash("Only letters, numbers and spaces allowed", "error")
-            return redirect(...)
+            return redirect(url_for('add_movie', user_id=user_id))  # Korrigierter Redirect
 
         omdb_data = fetch_omdb_data(title) or {}
-
-        # Rating sicher parsen
-        rating_input = request.form.get('rating', '')
-        try:
-            rating = float(rating_input) if rating_input else omdb_data.get('rating')
-        except ValueError:
-            flash("Invalid rating format! Use numbers like 7.5", "error")
-            return redirect(url_for('add_movie', user_id=user_id))
-
         movie_data = {
             'title': title,
             'director': request.form.get('director') or omdb_data.get('director'),
-            'year': int(request.form['year']) if request.form.get('year') else omdb_data.get('year'),
-            'rating': rating,  # Verwende den geparsten Wert
+            'year': request.form.get('year', type=int) or omdb_data.get('year'),
+            'rating': request.form.get('rating', type=float) or omdb_data.get('rating'),
             'genre': request.form.get('genre') or omdb_data.get('genre'),
             'plot': request.form.get('plot') or omdb_data.get('plot'),
             'comment': request.form.get('comment', ''),
             'user_id': user_id
         }
 
+        # None-Werte bereinigen
+        movie_data = {k: v for k, v in movie_data.items() if v is not None}
         data_manager.add_movie(**movie_data)
         return redirect(url_for('user_movies', user_id=user_id))
 

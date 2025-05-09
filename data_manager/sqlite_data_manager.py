@@ -102,7 +102,7 @@ class SQLiteDataManager(DataManagerInterface):
             movie = session.query(Movie).filter_by(id=movie_id).first()
             if not movie:
                 return False  # Film existiert nicht
-
+åç
             # Nur vorhandene Felder aktualisieren
             for key, value in updated_data.items():
                 if hasattr(movie, key):
