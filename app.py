@@ -3,7 +3,7 @@ from data_manager.sqlite_data_manager import SQLiteDataManager
 from dotenv import load_dotenv
 import os
 import requests
-
+import pytest
 
 load_dotenv()
 app = Flask(__name__)
@@ -176,5 +176,6 @@ def internal_error(e):
 
 
 if __name__ == "__main__":
-
-    app.run(debug=True)
+    if os.environ.get('TESTING') == 'true':
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test_movies.db'
+    app.run(debug=True, port=5002)  # 👈 Expliziter Port

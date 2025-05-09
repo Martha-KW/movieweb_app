@@ -3,9 +3,15 @@ from sqlalchemy.orm import sessionmaker
 from data_manager.data_manager_interface import DataManagerInterface
 from models import Base, User, Movie
 import logging
+import os
 
 class SQLiteDataManager(DataManagerInterface):
-    def __init__(self, db_url="sqlite:///data/movies.db"):
+    def __init__(self, db_url=None):
+        if db_url is None:
+            if os.environ.get('TESTING') == 'true':
+                db_url = "sqlite:///:memory:"  # In-Memory für Tests
+            else:
+                db_url = "sqlite:///data/movies.db"  # Normale DB
         self.engine = create_engine(db_url)
         Base.metadata.create_all(self.engine)
         SessionLocal = sessionmaker(bind=self.engine)
