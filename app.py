@@ -1,7 +1,7 @@
-from flask import Flask, flash, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request
 from data_manager.sqlite_data_manager import SQLiteDataManager
 from dotenv import load_dotenv
-import requests
+import logging
 import os
 
 load_dotenv()
@@ -160,6 +160,15 @@ def delete_movie(user_id, movie_id):
     else:
         flash("Movie not found!", "error")
     return redirect(url_for('user_movies', user_id=user_id))
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(e):
+    return render_template('500.html'), 500
 
 
 if __name__ == "__main__":
