@@ -18,6 +18,7 @@ def fetch_omdb_data(title):
         url = f"http://www.omdbapi.com/?apikey={OMDB_API_KEY}&t={title}&plot=full"
         response = requests.get(url, timeout=5)
         data = response.json()
+        print("OMDB RAW RESPONSE:", data)
 
         if data.get('Response') == 'False':
             error_msg = data.get('Error', 'API error')
@@ -49,7 +50,8 @@ def sanitize_omdb_data(omdb_data):
     if not omdb_data:
         return {}
 
-    allowed_fields = {'title', 'director', 'year', 'rating', 'genre', 'plot'}
+    allowed_fields = {'title', 'director', 'year', 'rating', 'genre', 'plot', 'writer',
+                      'actors', 'runtime'}
     sanitized = {k: v for k, v in omdb_data.items() if k in allowed_fields and v is not None}
 
     # Typkonvertierung

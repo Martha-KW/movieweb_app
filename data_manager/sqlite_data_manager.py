@@ -63,13 +63,16 @@ class SQLiteDataManager(DataManagerInterface):
             session.close()  # Session immer schließen
 
     def add_movie(self, title, director=None, year=None, rating=None, user_id=None,
-                  genre=None, plot=None,
-                  comment=None):
-        session = self.Session()  # Lokale Session
+                  genre=None, plot=None, comment=None, writer=None, actors=None,
+                  runtime=None):
+        session = self.Session()
         try:
             new_movie = Movie(
                 title=title,
                 director=director,
+                writer=writer,  # Neu
+                actors=actors,  # Neu
+                runtime=runtime,  # Neu
                 year=year,
                 rating=rating,
                 user_id=user_id,
