@@ -1,57 +1,49 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Movie List</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-
-
-<!-- should show the preferred movies of a user -->
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Favorite Movies of User {{ user_id }}</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Favorite Movies of User {{ user_id }}</h1>
+    <a href="{{ url_for('add_movie', user_id=user_id) }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add Movie
+    </a>
+</div>
 
-  <div class="table-controls">
-    <a href="{{ url_for('add_movie', user_id=user_id) }}" class="btn">Add a New Movie</a>
-    <a href="{{ url_for('home') }}" class="btn">Home</a>
-    <a href="{{ url_for('list_users') }}" class="btn">← Back to users</a>
-  </div>
-
-  <div class="table-container">
-    <table class="movie-table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Director</th>
-          <th>Year</th>
-          <th>Rating</th>
-          <th class="actions">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for movie in movies %}
-          <tr>
-            <td data-label="Title">{{ movie.title }}</td>
-            <td data-label="Director">{{ movie.director or '-' }}</td>
-            <td data-label="Year">{{ movie.year or '-' }}</td>
-            <td data-label="Rating">{{ "%.1f"|format(movie.rating) if movie.rating else '-' }}</td>
-            <td data-label="Actions" class="actions">
-              <a href="{{ url_for('update_movie', user_id=user_id, movie_id=movie.id) }}" class="edit-btn">✏️ Edit</a>
-               <form action="{{ url_for('delete_movie', user_id=user_id, movie_id=movie.id) }}" method="POST" style="display: inline;">
-                 <button type="submit" class="delete-btn">🗑️ Delete</button>
-                </form>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Title</th>
+                <th>Director</th>
+                <th>Year</th>
+                <th>Rating</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movie in movies %}
+            <tr>
+                <td class="fw-bold">{{ movie.title }}</td>
+                <td>{{ movie.director or '-' }}</td>
+                <td>{{ movie.year or '-' }}</td>
+                <td>
+                    {% if movie.rating %}
+                    <span class="badge bg-primary rounded-pill">{{ "%.1f"|format(movie.rating) }}</span>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <a href="{{ url_for('update_movie', user_id=user_id, movie_id=movie.id) }}"
+                       class="btn btn-sm btn-outline-primary me-1">
+                        Edit
+                    </a>
+                    <form action="{{ url_for('delete_movie', user_id=user_id, movie_id=movie.id) }}" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
-  </div>
+</div>
 {% endblock %}
-
-
-</body>
-</html>

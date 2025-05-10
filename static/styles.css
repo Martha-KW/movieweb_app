@@ -1,191 +1,93 @@
-/* ========== GLOBAL STYLES ========== */
+/* Google Fonts anwenden */
 body {
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  margin: 0;
-  padding: 20px;
-  color: #333;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* ========== FLASH MESSAGES ========== */
-.flash-container {
-  max-width: 1200px;
-  margin: 0 auto 20px auto;
-  padding: 0 15px;
+/* Farbpalette als CSS-Variablen */
+:root {
+    --primary: #2563eb;
+    --secondary: #6c757d;
+    --dark: #212529;
+    --light: #f8f9fa;
 }
 
-.flash-message {
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 5px;
-  font-weight: bold;
-  text-align: center;
+/* Navbar */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.flash-success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.flash-error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-/* ========== TABLE STYLES ========== */
-.table-container {
-  overflow-x: auto;
-  margin: 20px 0;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px;
-}
-
-th, td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #333;
-  position: sticky;
-  top: 0;
-}
-
-/* Zebra-Striping */
-tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-tr:hover {
-  background-color: #f1f1f1;
-}
-
-/* Actions-Spalte */
-.actions {
-  white-space: nowrap;
-  width: 120px;
-}
-
-/* ========== BUTTON STYLES ========== */
-.btn {
-  display: inline-block;
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  margin-right: 10px;
-  margin-bottom: 15px;
-  transition: all 0.3s;
-}
-
-.btn:hover {
-  background-color: #0069d9;
-}
-
-.edit-btn {
-  color: #007bff;
-  text-decoration: none;
-  padding: 5px 10px;
-  border: 1px solid #007bff;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.edit-btn:hover {
-  background-color: #007bff;
-  color: white;
-}
-
-.delete-btn {
-  color: #dc3545;
-  background: none;
-  border: 1px solid #dc3545;
-  border-radius: 4px;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-family: inherit;
-  font-size: inherit;
-}
-
-.delete-btn:hover {
-  background-color: #dc3545;
-  color: white;
-}
-
-/* Homepage-Styles */
-.welcome-container {
-  max-width: 800px;
-  margin: 50px auto;
-  text-align: center;
-  padding: 20px;
-}
-
-.welcome-container h1 {
-  color: #007bff;
-  margin-bottom: 20px;
-}
-
-.welcome-container p {
-  font-size: 1.2rem;
-  margin-bottom: 30px;
-}
-
-
-/* ========== MOBILE STYLES ========== */
-@media (max-width: 768px) {
-  body {
-    padding: 10px;
-  }
-
-  .table-container {
-    margin: 15px -10px;
-    width: calc(100% + 20px);
-  }
-
-  table {
-    min-width: 100%;
-  }
-
-  /* Zeigt data-label als "inline-header" an */
-  td {
+/* Homepage-Hintergrund */
+.homepage-background {
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), /* Transparenz
+        erhöht */
+        url('/static/images/background.jpg') center/cover no-repeat fixed;
+    min-height: 80vh;
     display: flex;
-    padding: 10px;
-  }
-
-  td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    width: 120px;
-    flex-shrink: 0;
-  }
-
-  .actions {
-    width: auto;
-  }
-
-  .flash-message {
-    padding: 10px;
-    margin: 8px 0;
-  }
+    align-items: flex-start; /* Changed from center to flex-start */
+    padding-top: 5rem; /* Abstand nach oben */
+    position: relative;
 }
 
-.flash-warning {
-    background-color: #fff3cd; /* Hellgelb für Warnungen */
-    color: #856404;
-    border-left: 4px solid #ffc107;
+
+/* Welcome-Box */
+.welcome-message {
+
+    padding: 2.5rem;
+    border-radius: 0.5rem;
+
+    max-width: 600px; /* Breite begrenzen */
+    margin: 0 auto; /* Zentrieren */
+    backdrop-filter: blur(2px); /* Leichter Unschärfe-Effekt */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    top: 60%; /* Position nach unten verschieben */
+    margin-top: 90px; /* Manuelle Korrektur */
+    transform: translateY(-50%);
+}
+
+
+/* Tabellen */
+.table {
+    margin-top: 1rem;
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(37, 99, 235, 0.1) !important;
+}
+
+/* Formulare */
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary);
+    border: none;
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Flash-Nachrichten */
+.flash-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+.flash-error {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+/* Für kleinere Bildschirme */
+@media (max-width: 768px) {
+    .welcome-message {
+        width: 90%;
+        padding: 1.5rem;
+        top: 15%;
+    }
 }

@@ -1,9 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="welcome-container">
-    <h1>🎬 Wecome to your Web Movie Database!</h1>
-    <p>Collect your favourite movies online</p>
-    <a href="{{ url_for('list_users') }}" class="btn">Userpage</a>
-  </div>
+<div class="homepage-background">
+    <div class="container">
+        <div class="welcome-message text-center mx-auto"> <!-- mx-auto für horizontale Zentrierung -->
+            <h1 class="display-4 mb-4">Welcome to MovieWeb</h1>
+            <p class="lead">Your personal movie collection manager</p>
+            <div class="mt-4">
+                <a href="{{ url_for('list_users') }}" class="btn btn-primary btn-lg px-4 me-2">
+                    Browse Users
+                </a>
+                <a href="{{ url_for('add_user') }}" class="btn btn-outline-primary btn-lg px-4">
+                    Add New User
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
