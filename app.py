@@ -3,35 +3,14 @@ from data_manager.sqlite_data_manager import SQLiteDataManager
 from dotenv import load_dotenv
 import os
 import requests
-import pytest
 
-
-app = Flask(__name__)
 load_dotenv()
+app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY', 'fallback-key-für-development')
 OMDB_API_KEY = os.getenv('OMDB_API_KEY')
-app.secret_key = os.getenv('SECRET_KEY')
-if not app.secret_key:
-    app.secret_key = 'fallback-key-für-development'
 
-data_manager = None
-
-
-def create_app(test_config=None):
-    global data_manager
-
-    if test_config:
-        app.config.update(test_config)
-
-    # Initialisiere den DataManager NACH Konfiguration
-    data_manager = SQLiteDataManager(
-        app.config.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///data/movies.db')
-    )
-
-    return app
-
-
-# data_manager = SQLiteDataManager()
-
+# Datenbank-Initialisierung
+data_manager = SQLiteDataManager('sqlite:///data/movies.db')
 
 def fetch_omdb_data(title):
     """Holt und bereinigt Daten von der OMDb API."""
@@ -90,7 +69,6 @@ def sanitize_omdb_data(omdb_data):
 def home():
     return render_template("home.html")
 
-
 @app.route("/users")
 def list_users():
     users = data_manager.get_all_users()
@@ -102,25 +80,22 @@ def user_movies(user_id):
     movies = data_manager.get_user_movies(user_id)
     return render_template("movie_list.html", user_id=user_id, movies=movies)
 
-
 @app.route("/add_user", methods=["GET", "POST"])
 def add_user():
     if request.method == "POST":
         username = request.form["username"]
         data_manager.add_user(username)
-        return redirect("/")  # Zurück zur User-Auswahl
+        return redirect("/")
     return render_template("user_form.html")
-
 
 @app.route('/add_movie/<int:user_id>', methods=['GET', 'POST'])
 def add_movie(user_id):
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
 
-        # Validierung
         if not title:
             flash("Title cannot be empty!", "error")
-            return redirect(url_for('add_movie', user_id=user_id))  # Korrigierter Redirect
+            return redirect(url_for('add_movie', user_id=user_id))
 
         omdb_data = fetch_omdb_data(title) or {}
         movie_data = {
@@ -134,18 +109,15 @@ def add_movie(user_id):
             'user_id': user_id
         }
 
-        # None-Werte bereinigen
         movie_data = {k: v for k, v in movie_data.items() if v is not None}
         data_manager.add_movie(**movie_data)
         return redirect(url_for('user_movies', user_id=user_id))
 
     return render_template('add_movie.html', user_id=user_id)
 
-
 @app.route('/user/<int:user_id>/update_movie/<int:movie_id>', methods=['GET', 'POST'])
 def update_movie(user_id, movie_id):
     if request.method == 'POST':
-        # Nur Felder aktualisieren, die im Formular übergeben wurden
         updated_data = {
             "title": request.form.get("title"),
             "director": request.form.get("director"),
@@ -155,35 +127,31 @@ def update_movie(user_id, movie_id):
             "plot": request.form.get("plot"),
             "comment": request.form.get("comment")
         }
-        # None-Werte entfernen (Felder, die nicht aktualisiert werden sollen)
         updated_data = {k: v for k, v in updated_data.items() if v is not None}
 
         success = data_manager.update_user_movie(movie_id, updated_data)
         if not success:
-            flash("Movie not found!", "error")  # Roter Alert
+            flash("Movie not found!", "error")
         else:
-            flash("Movie updated successfully!", "success")  # Grüner Alert
+            flash("Movie updated successfully!", "success")
 
         return redirect(url_for('user_movies', user_id=user_id))
 
-    # GET-Request: Formular mit aktuellen Daten anzeigen
     movie = data_manager.get_movie_by_id(movie_id)
     if not movie:
-        flash("Movie not found!", "error")  # Roter Alert
+        flash("Movie not found!", "error")
         return redirect(url_for('user_movies', user_id=user_id))
 
     return render_template('edit_movie.html', user_id=user_id, movie=movie)
 
-
 @app.route('/user/<int:user_id>/delete_movie/<int:movie_id>', methods=['POST'])
 def delete_movie(user_id, movie_id):
-    success = data_manager.delete_movie(movie_id)  # Methode wird im nächsten Schritt erstellt
+    success = data_manager.delete_movie(movie_id)
     if success:
         flash("Movie deleted successfully!", "success")
     else:
         flash("Movie not found!", "error")
     return redirect(url_for('user_movies', user_id=user_id))
-
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -193,8 +161,5 @@ def page_not_found(e):
 def internal_error(e):
     return render_template('500.html'), 500
 
-
 if __name__ == "__main__":
-    if os.environ.get('TESTING') == 'true':
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test_movies.db'
-    app.run(debug=True, port=5002)  # 👈 Expliziter Port
+    app.run(debug=True, port=5002)
