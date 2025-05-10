@@ -1,31 +1,44 @@
-
 import pytest
+import sys
 import os
-from app import app
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+# Temporärer Pfad-Fix (ESSENTIELL)
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/..'))
+
+# Absolute Imports NACH dem sys.path-Update
+from models import User, Movie
 from data_manager.sqlite_data_manager import SQLiteDataManager
-
-@pytest.fixture(scope='session')
-def test_db_path(tmp_path_factory):
-    """Erstellt eine temporäre Kopie der DB für Tests."""
-    original_db = "data/movies.db"
-    test_db = tmp_path_factory.mktemp("data") / "test_movies.db"
-
-    # Kopiere die originale DB (falls benötigt)
-    if os.path.exists(original_db):
-        import shutil
-        shutil.copy(original_db, test_db)
-
-    return test_db
-
+from app import create_app
 
 @pytest.fixture
-def test_client():
-    # Setze TESTING-Umgebungsvariable
-    import os
-    os.environ['TESTING'] = 'true'
+def browser():
+    options = Options()
+    options.add_argument("--headless=new")
+    driver = webdriver.Chrome(options=options)
+    yield driver
+    driver.quit()
 
-    # Erstelle einen neuen DataManager mit In-Memory-DB
-    app.config['DATA_MANAGER'] = SQLiteDataManager()  # 👈 Nutzt automatisch :memory:
+@pytest.fixture
+def test_app():
+    app = create_app({
+        'TESTING': True,
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:'
+    })
+    yield app
 
-    with app.test_client() as client:
-        yield client
+@pytest.fixture
+def test_client(test_app):
+    return test_app.test_client()
+
+@pytest.fixture
+def init_db(test_app):
+    dm = test_app.config['DATA_MANAGER'] = SQLiteDataManager('sqlite:///:memory:')
+    session = dm.Session()
+    try:
+        test_user = User(username="test_user")
+        session.add(test_user)
+        session.commit()
+    finally:
+        session.close()

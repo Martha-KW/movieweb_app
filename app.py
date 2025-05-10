@@ -5,13 +5,32 @@ import os
 import requests
 import pytest
 
-load_dotenv()
+
 app = Flask(__name__)
+load_dotenv()
+OMDB_API_KEY = os.getenv('OMDB_API_KEY')
 app.secret_key = os.getenv('SECRET_KEY')
 if not app.secret_key:
     app.secret_key = 'fallback-key-für-development'
-data_manager = SQLiteDataManager()
-OMDB_API_KEY = os.getenv('OMDB_API_KEY')
+
+data_manager = None
+
+
+def create_app(test_config=None):
+    global data_manager
+
+    if test_config:
+        app.config.update(test_config)
+
+    # Initialisiere den DataManager NACH Konfiguration
+    data_manager = SQLiteDataManager(
+        app.config.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///data/movies.db')
+    )
+
+    return app
+
+
+# data_manager = SQLiteDataManager()
 
 
 def fetch_omdb_data(title):

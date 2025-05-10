@@ -4,17 +4,11 @@ from selenium.webdriver.common.by import By
 import pytest
 
 
-def test_add_movie(browser, test_client):
-    test_client.post("/add_user", data={"username": "test_user"})
-    # 1. Zur User-Seite navigieren (mit explizitem Wait)
-    browser.get(f"http://localhost:5002/user/{test_user_id}")
+def test_add_movie(browser, test_client, init_db):
+    # 1. Zur User-Seite navigieren (ID 1 existiert jetzt)
+    browser.get("http://localhost:5002/user/1")
 
-    # 2. Sicherstellen, dass die Seite geladen ist
-    WebDriverWait(browser, 5).until(
-        EC.presence_of_element_located((By.TAG_NAME, "h1"))
-    )
-
-    # 3. Add-Button finden (mit PARTIAL_LINK_TEXT für Emoji-Toleranz)
+    # 2. Weiter wie bisher...
     add_button = WebDriverWait(browser, 5).until(
         EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, "Add a New Movie"))
     )
