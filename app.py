@@ -3,6 +3,7 @@ from data_manager.sqlite_data_manager import SQLiteDataManager
 from dotenv import load_dotenv
 import os
 import requests
+from models import Movie, User
 
 load_dotenv()
 app = Flask(__name__)
@@ -13,9 +14,8 @@ OMDB_API_KEY = os.getenv('OMDB_API_KEY')
 data_manager = SQLiteDataManager('sqlite:///data/movies.db')
 
 def fetch_omdb_data(title):
-    """Holt und bereinigt Daten von der OMDb API."""
     try:
-        url = f"http://www.omdbapi.com/?apikey={OMDB_API_KEY}&t={title}"
+        url = f"http://www.omdbapi.com/?apikey={OMDB_API_KEY}&t={title}&plot=full"
         response = requests.get(url, timeout=5)
         data = response.json()
 
@@ -24,12 +24,14 @@ def fetch_omdb_data(title):
             flash(f"OMDb API: {error_msg}", "warning")
             return None
 
-        # Rohdaten bereinigen
         raw_data = {
             'title': data.get('Title'),
             'director': data.get('Director'),
+            'writer': data.get('Writer'),
+            'actors': data.get('Actors'),
             'year': data.get('Year'),
             'rating': data.get('imdbRating'),
+            'runtime': data.get('Runtime'),
             'genre': data.get('Genre'),
             'plot': data.get('Plot')
         }
@@ -101,12 +103,16 @@ def add_movie(user_id):
         movie_data = {
             'title': title,
             'director': request.form.get('director') or omdb_data.get('director'),
+            'writer': request.form.get('writer') or omdb_data.get('writer'),
+            'actors': request.form.get('actors') or omdb_data.get('actors'),
+            'runtime': request.form.get('runtime') or omdb_data.get('runtime'),
             'year': request.form.get('year', type=int) or omdb_data.get('year'),
             'rating': request.form.get('rating', type=float) or omdb_data.get('rating'),
             'genre': request.form.get('genre') or omdb_data.get('genre'),
             'plot': request.form.get('plot') or omdb_data.get('plot'),
             'comment': request.form.get('comment', ''),
-            'user_id': user_id
+            'user_id': user_id,
+
         }
 
         movie_data = {k: v for k, v in movie_data.items() if v is not None}
@@ -152,6 +158,21 @@ def delete_movie(user_id, movie_id):
     else:
         flash("Movie not found!", "error")
     return redirect(url_for('user_movies', user_id=user_id))
+
+
+
+
+@app.route('/movie/<int:movie_id>')
+def movie_details(movie_id):
+    movie = data_manager.get_movie_with_user(movie_id)  # Nutze die neue Methode
+    if not movie:
+        flash("Movie not found!", "error")
+        return redirect(url_for('home'))
+
+    return render_template('movie_details.html',
+                           movie=movie,
+                           user=movie.user)  # Jetzt sollte user verfügbar sein
+
 
 @app.errorhandler(404)
 def page_not_found(e):

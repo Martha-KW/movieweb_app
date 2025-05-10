@@ -91,3 +91,33 @@ body {
         top: 15%;
     }
 }
+
+/* Movie Details spezifisch */
+.movie-details-card {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.movie-details-card .card-header {
+    padding: 1.5rem;
+}
+
+.movie-details-card .card-body p {
+    margin-bottom: 0.8rem;
+}
+
+.comment-box {
+    background-color: #f8f9fa;
+    border-left: 4px solid var(--primary);
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+    .movie-details-card .card-body {
+        padding: 1rem;
+    }
+}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h1 class="mb-0">{{ movie.title }} ({{ movie.year }})</h1>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <p><strong>Added by:</strong> {{ user.username }}</p>
+                    <p><strong>Director:</strong> {{ movie.director or "N/A" }}</p>
+                    <p><strong>Writer:</strong> {{ movie.writer or "N/A" }}</p>
+                    <p><strong>Actors:</strong> {{ movie.actors or "N/A" }}</p>
+                    <p><strong>Runtime:</strong> {{ movie.runtime or "N/A" }}</p>
+                    <p><strong>Genre:</strong> {{ movie.genre or "N/A" }}</p>
+                    <p><strong>IMDb Rating:</strong>
+                        {% if movie.rating %}
+                            {{ movie.rating }}/10
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h3>Plot</h3>
+                <p>{{ movie.plot or "No plot available" }}</p>
+            </div>
+
+            <div class="mt-4 border-top pt-3">
+                <h3>Your Comment</h3>
+                <div class="p-3 bg-light rounded">
+                    {{ movie.comment or "No comment yet" }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <a href="{{ url_for('user_movies', user_id=user.id) }}"
+               class="btn btn-primary">
+                Back to {{ user.username }}'s movies
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

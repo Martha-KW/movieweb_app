@@ -22,7 +22,12 @@
         <tbody>
             {% for movie in movies %}
             <tr>
-                <td class="fw-bold">{{ movie.title }}</td>
+                <td>
+                 <a href="{{ url_for('movie_details', movie_id=movie.id) }}"
+                 class="text-decoration-none">
+                 {{ movie.title }}
+                 </a>
+                </td>
                 <td>{{ movie.director or '-' }}</td>
                 <td>{{ movie.year or '-' }}</td>
                 <td>

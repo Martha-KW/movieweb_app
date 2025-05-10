@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, joinedload
 from data_manager.data_manager_interface import DataManagerInterface
 from models import Base, User, Movie
 import logging
@@ -120,5 +120,14 @@ class SQLiteDataManager(DataManagerInterface):
             session.rollback()
             logging.error("Error updating movie: %s", e)
             return False
+        finally:
+            session.close()
+
+    def get_movie_with_user(self, movie_id):
+        session = self.Session()
+        try:
+            return session.query(Movie).options(
+                joinedload(Movie.user)  # Jetzt mit direkt importiertem joinedload
+            ).filter_by(id=movie_id).first()
         finally:
             session.close()
