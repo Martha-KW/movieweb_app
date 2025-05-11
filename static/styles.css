@@ -1,6 +1,9 @@
 /* Google Fonts anwenden */
 body {
     font-family: 'Poppins', sans-serif;
+    overflow-x: hidden; /* Horizontalen Scroll verhindern */
+    margin: 0;
+    padding: 0;
 }
 
 /* Farbpalette als CSS-Variablen */
@@ -14,37 +17,52 @@ body {
 /* Navbar */
 .navbar {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 60px;
 }
+
+header {
+    height: 60px; /* Blaue Header-Höhe anpassen */
+}
+
 
 /* Homepage-Hintergrund */
 .homepage-background {
-    background:
-        linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), /* Transparenz
-        erhöht */
-        url('/static/images/background.jpg') center/cover no-repeat fixed;
-    min-height: 80vh;
-    display: flex;
-    align-items: flex-start; /* Changed from center to flex-start */
-    padding-top: 5rem; /* Abstand nach oben */
-    position: relative;
+    background: url('/static/images/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    z-index: -1; /* Hinter allen anderen Elementen */
 }
 
 
 /* Welcome-Box */
 .welcome-message {
-
-    padding: 2.5rem;
-    border-radius: 0.5rem;
-
-    max-width: 600px; /* Breite begrenzen */
-    margin: 0 auto; /* Zentrieren */
+    position: absolute;
+    top: 15%; /* Höher platziert */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    text-align: center;
     backdrop-filter: blur(2px); /* Leichter Unschärfe-Effekt */
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
-    top: 60%; /* Position nach unten verschieben */
-    margin-top: 90px; /* Manuelle Korrektur */
-    transform: translateY(-50%);
 }
+
+
+.welcome-message h1 {
+    font-size: 2.5rem; /* Feste Schriftgröße */
+    white-space: nowrap; /* Kein Zeilenumbruch */
+    margin-bottom: 0.5rem;
+}
+
+.welcome-message .lead {
+    font-size: 1.25rem; /* Kleinere Unterschrift */
+    margin-bottom: 2rem;
+}
+
 
 
 /* Tabellen */
@@ -86,9 +104,12 @@ body {
 /* Für kleinere Bildschirme */
 @media (max-width: 768px) {
     .welcome-message {
-        width: 90%;
-        padding: 1.5rem;
         top: 15%;
+        width: 90%;
+    }
+    .funfact-container {
+        bottom: 10%;
+        width: 90%;
     }
 }
 
@@ -123,12 +144,22 @@ body {
 }
 
 /* FunFact Box Styling */
+.funfact-container {
+    position: absolute;
+    bottom: 15%; /* Höher = mehr Kinositze sichtbar */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 700px;
+    margin-left: -15%; /* Extra-Linksversatz */
+}
+
 .funfact-box {
-    background-color: rgba(0, 0, 0, 0.7);
-    border-left: 3px solid #ffc107;
-    max-width: 600px;
-    color: white;
+    background: rgba(0, 0, 0, 0.85);
+    border-left: 3px solid #0704c4;
+    padding: 1rem;
     border-radius: 5px;
+    color: white;
 }
 
 .funfact-box small {

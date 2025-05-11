@@ -240,9 +240,11 @@ def themed_funfact(theme):
     if theme not in themes:
         abort(404)
 
-    prompt = f"""Tell one surprising fact about: {themes[theme]}.
-    - Be specific (mention movie titles/years)
-    - Maximum 2 sentences
+    prompt = f"""Tell ONE surprising fact about: {themes[theme]}.
+    -Focus on a single specific example 
+    -Be specific (mention movie titles/years)
+    - Maximum 1 sentences
+    -No lists or multiple examples
     - Make it unexpected
     Example: "In 'The Wizard of Oz' (1939), asbestos was used as fake snow"
     """

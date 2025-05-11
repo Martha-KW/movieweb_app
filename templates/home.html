@@ -7,14 +7,7 @@
             <h1 class="display-4 mb-4">Welcome to MovieWeb</h1>
             <p class="lead">Your personal movie collection manager</p>
 
-            <!-- Fun Fact Box (appears below lead text) -->
-            <div class="funfact-box mt-5 p-3 mx-auto">
-                <p class="mb-1"><small>Did you know?</small></p>
-                <p class="mb-2">{{ funfact }}</p>
-                <a href="/" class="btn btn-sm btn-outline-light">Show Another</a>
-            </div>
-
-            <div class="mt-4">
+             <div class="mt-4">
                 <a href="{{ url_for('list_users') }}" class="btn btn-primary btn-lg px-4 me-2">
                     Browse Users
                 </a>
@@ -22,6 +15,15 @@
                     Add New User
                 </a>
             </div>
+
+            <!-- Fun Fact Box (appears below buttons) -->
+            <div class="funfact-box mt-5 p-3 mx-auto">
+                <p class="mb-1"><small>Did you know?</small></p>
+                <p class="mb-2">{{ funfact | trim }}</p>
+                <a href="/" class="btn btn-sm btn-outline-light">Show Next</a>
+            </div>
+
+
         </div>
     </div>
 </div>
