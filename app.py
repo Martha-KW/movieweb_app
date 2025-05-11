@@ -1,7 +1,8 @@
-from flask import flash, Flask, render_template, redirect, url_for, request
+from flask import abort, flash, Flask, render_template, redirect, url_for, request
 from data_manager.sqlite_data_manager import SQLiteDataManager
 from dotenv import load_dotenv
 import os
+import random
 import requests
 from models import Movie, User
 
@@ -9,6 +10,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'fallback-key-für-development')
 OMDB_API_KEY = os.getenv('OMDB_API_KEY')
+DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY')
 
 # Datenbank-Initialisierung
 data_manager = SQLiteDataManager('sqlite:///data/movies.db')
@@ -71,7 +73,30 @@ def sanitize_omdb_data(omdb_data):
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    # Get a random theme key
+    random_theme = random.choice(list(themes.keys()))
+
+    # Generate a fun fact (same logic as themed_funfact)
+    prompt = f"""Tell one surprising fact about movies. Focus on: {themes[random_theme]}.
+       - Be specific (mention movie titles/years)
+       - Maximum 2 sentences
+       - Make it unexpected"""
+
+    response = requests.post(
+        "https://api.deepseek.com/v1/chat/completions",
+        headers={"Authorization": f"Bearer {DEEPSEEK_API_KEY}"},
+        json={
+            "model": "deepseek-chat",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.8
+        }
+    )
+
+    fact = response.json()["choices"][0]["message"]["content"]
+
+    return render_template('home.html',
+                           funfact=fact,
+                           current_theme=random_theme)
 
 @app.route("/users")
 def list_users():
@@ -194,6 +219,48 @@ def movie_details(movie_id):
     return render_template('movie_details.html',
                            movie=movie,
                            user=movie.user)  # Jetzt sollte user verfügbar sein
+
+
+themes = {
+    'technology': "Groundbreaking film technologies and their first uses",
+    'controversies': "Movie controversies, scandals and censorship battles",
+    'bloopers': "Funny on-set accidents and unscripted moments",
+    'paranormal': "Unexplained deaths and supernatural occurrences during productions",
+    'actor_facts': "Extreme actor transformations for roles",
+    'props': "Craziest movie props ever used",
+    'mistakes': "Famous continuity errors and movie mistakes",
+    'oscars': "Shocking Oscar wins and snubs",
+    'budgets': "Insane movie budget facts",
+    'locations': "Fascinating filming location stories"
+}
+
+
+@app.route('/funfact/<theme>')
+def themed_funfact(theme):
+    if theme not in themes:
+        abort(404)
+
+    prompt = f"""Tell one surprising fact about: {themes[theme]}.
+    - Be specific (mention movie titles/years)
+    - Maximum 2 sentences
+    - Make it unexpected
+    Example: "In 'The Wizard of Oz' (1939), asbestos was used as fake snow"
+    """
+
+    response = requests.post(
+        "https://api.deepseek.com/v1/chat/completions",
+        headers={"Authorization": f"Bearer {DEEPSEEK_API_KEY}"},
+        json={
+            "model": "deepseek-chat",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.8  # More creative facts
+        }
+    )
+
+    fact = response.json()["choices"][0]["message"]["content"]
+    return render_template('funfact.html',
+                           funfact=fact,
+                           current_theme=theme)
 
 
 @app.errorhandler(404)
