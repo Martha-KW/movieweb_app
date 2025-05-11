@@ -5,6 +5,16 @@
     <div class="card-body">
         <h2 class="card-title mb-4">Add Movie for User ID {{ user_id }}</h2>
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} mb-4">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
         <form method="post" class="needs-validation" novalidate>
             <div class="row g-3">
                 <!-- Title -->

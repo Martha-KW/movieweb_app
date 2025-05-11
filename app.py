@@ -78,16 +78,31 @@ def list_users():
     users = data_manager.get_all_users()
     return render_template("user_select.html", users=users)
 
+
 @app.route("/user/<int:user_id>")
 def user_movies(user_id):
     user = data_manager.get_user_by_id(user_id)
+    if not user:
+        flash("User not found!", "error")
+        return redirect(url_for('list_users'))
+
     movies = data_manager.get_user_movies(user_id)
-    return render_template("movie_list.html", user_id=user_id, movies=movies)
+    return render_template("movie_list.html",
+                           user=user,
+                           movies=movies,
+                           user_id=user_id)  # Wichtig: user_id weiterhin übergeben für Links
+
 
 @app.route("/add_user", methods=["GET", "POST"])
 def add_user():
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].strip()
+        # Checks if user already exists, before writing
+        existing_user = data_manager.get_user_by_username(username)
+        if existing_user:
+            flash(f"Username '{username}' is already taken!", "error")
+            return redirect(url_for('add_user'))
+
         data_manager.add_user(username)
         return redirect("/")
     return render_template("user_form.html")
@@ -99,6 +114,11 @@ def add_movie(user_id):
 
         if not title:
             flash("Title cannot be empty!", "error")
+            return redirect(url_for('add_movie', user_id=user_id))
+
+        # Check for existing movie
+        if data_manager.movie_exists(user_id, title):
+            flash(f"You already have '{title}' in your collection!", "error")
             return redirect(url_for('add_movie', user_id=user_id))
 
         omdb_data = fetch_omdb_data(title) or {}

@@ -41,6 +41,25 @@ class SQLiteDataManager(DataManagerInterface):
         finally:
             session.close()
 
+    def get_user_by_username(self, username):
+        session = self.Session()
+        try:
+            return session.query(User).filter_by(username=username).first()
+        finally:
+            session.close()
+
+    def movie_exists(self, user_id, title):
+        session = self.Session()
+        try:
+            existing_movie = session.query(Movie).filter_by(
+                user_id=user_id,
+                title=title
+            ).first()
+            return existing_movie is not None
+        finally:
+            session.close()
+
+
     def get_movie_by_id(self, movie_id):
         session = self.Session()
         try:
