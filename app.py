@@ -1,21 +1,32 @@
+"""
+This is the Flask Backend  of my MovieWeb Application. A web based movie database with
+OMDB API and the integration of a deepseek AI movie funfact generator
+"""
+
+
 from flask import abort, flash, Flask, render_template, redirect, url_for, request
 from data_manager.sqlite_data_manager import SQLiteDataManager
 from dotenv import load_dotenv
 import os
 import random
 import requests
-from models import Movie, User
 
+# load the environment variables
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'fallback-key-für-development')
 OMDB_API_KEY = os.getenv('OMDB_API_KEY')
 DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY')
 
-# Datenbank-Initialisierung
+# Initialize the Database
 data_manager = SQLiteDataManager('sqlite:///data/movies.db')
 
+
 def fetch_omdb_data(title):
+    """ Fetch movie data from OMDb API.
+        Args: title (str): Movie title you can search for
+        Returns: a sanitized dict with movie data or None if error occurs.
+    """
     try:
         url = f"http://www.omdbapi.com/?apikey={OMDB_API_KEY}&t={title}&plot=full"
         response = requests.get(url, timeout=5)
@@ -47,8 +58,12 @@ def fetch_omdb_data(title):
         flash("Invalid API response format.", "error")
         return None
 
+
 def sanitize_omdb_data(omdb_data):
-    """Entfernt nicht-whitelistete Felder und konvertiert Typen."""
+    """Clean and validate data from OMDb API response.
+        Args: omdb_data (dict): Raw API response data
+        Returns: dict: Sanitized and type-converted movie data
+    """
     if not omdb_data:
         return {}
 
@@ -56,7 +71,6 @@ def sanitize_omdb_data(omdb_data):
                       'actors', 'runtime'}
     sanitized = {k: v for k, v in omdb_data.items() if k in allowed_fields and v is not None}
 
-    # Typkonvertierung
     if 'year' in sanitized:
         try:
             sanitized['year'] = int(sanitized['year'])
@@ -71,15 +85,16 @@ def sanitize_omdb_data(omdb_data):
 
     return sanitized
 
+
 @app.route("/")
 def home():
-    # Get a random theme key
+    """Generates the homepage with links to user and database management and a fun fact"""
     random_theme = random.choice(list(themes.keys()))
 
-    # Generate a fun fact (same logic as themed_funfact)
-    prompt = f"""Tell one surprising fact about movies. Focus on: {themes[random_theme]}.
+    # Generate a fun fact
+    prompt = f"""Tell ONE surprising fact about movies. Focus on: {themes[random_theme]}.
        - Be specific (mention movie titles/years)
-       - Maximum 2 sentences
+       - Maximum 1 sentence
        - Make it unexpected"""
 
     response = requests.post(
@@ -98,14 +113,17 @@ def home():
                            funfact=fact,
                            current_theme=random_theme)
 
+
 @app.route("/users")
 def list_users():
+    """Displays a list of the users in the Database"""
     users = data_manager.get_all_users()
     return render_template("user_select.html", users=users)
 
 
 @app.route("/user/<int:user_id>")
 def user_movies(user_id):
+    """Displays the movies a specific user has safed."""
     user = data_manager.get_user_by_id(user_id)
     if not user:
         flash("User not found!", "error")
@@ -115,14 +133,15 @@ def user_movies(user_id):
     return render_template("movie_list.html",
                            user=user,
                            movies=movies,
-                           user_id=user_id)  # Wichtig: user_id weiterhin übergeben für Links
+                           user_id=user_id)
 
 
 @app.route("/add_user", methods=["GET", "POST"])
 def add_user():
+    """Creates a new user in the database"""
     if request.method == "POST":
         username = request.form["username"].strip()
-        # Checks if user already exists, before writing
+        # Checks if user already exists, before writing a duplicate
         existing_user = data_manager.get_user_by_username(username)
         if existing_user:
             flash(f"Username '{username}' is already taken!", "error")
@@ -132,8 +151,10 @@ def add_user():
         return redirect("/")
     return render_template("user_form.html")
 
+
 @app.route('/add_movie/<int:user_id>', methods=['GET', 'POST'])
 def add_movie(user_id):
+    """Ads a new movie to the collection of a certain user."""
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
 
@@ -141,7 +162,7 @@ def add_movie(user_id):
             flash("Title cannot be empty!", "error")
             return redirect(url_for('add_movie', user_id=user_id))
 
-        # Check for existing movie
+        # Check for existing movie before writing a duplicate
         if data_manager.movie_exists(user_id, title):
             flash(f"You already have '{title}' in your collection!", "error")
             return redirect(url_for('add_movie', user_id=user_id))
@@ -159,7 +180,6 @@ def add_movie(user_id):
             'plot': request.form.get('plot') or omdb_data.get('plot'),
             'comment': request.form.get('comment', ''),
             'user_id': user_id,
-
         }
 
         movie_data = {k: v for k, v in movie_data.items() if v is not None}
@@ -168,8 +188,12 @@ def add_movie(user_id):
 
     return render_template('add_movie.html', user_id=user_id)
 
+
 @app.route('/user/<int:user_id>/update_movie/<int:movie_id>', methods=['GET', 'POST'])
 def update_movie(user_id, movie_id):
+    """Enables user to update movie details manually. For example adding a comment, change
+    the rating or remove typos.
+    """
     if request.method == 'POST':
         updated_data = {
             "title": request.form.get("title"),
@@ -197,8 +221,10 @@ def update_movie(user_id, movie_id):
 
     return render_template('edit_movie.html', user_id=user_id, movie=movie)
 
+
 @app.route('/user/<int:user_id>/delete_movie/<int:movie_id>', methods=['POST'])
 def delete_movie(user_id, movie_id):
+    """deletes a movie from the collection of a certain user only."""
     success = data_manager.delete_movie(movie_id)
     if success:
         flash("Movie deleted successfully!", "success")
@@ -207,10 +233,9 @@ def delete_movie(user_id, movie_id):
     return redirect(url_for('user_movies', user_id=user_id))
 
 
-
-
 @app.route('/movie/<int:movie_id>')
 def movie_details(movie_id):
+    """shows more details for the movie you clicked on."""
     movie = data_manager.get_movie_with_user(movie_id)  # Nutze die neue Methode
     if not movie:
         flash("Movie not found!", "error")
@@ -220,7 +245,7 @@ def movie_details(movie_id):
                            movie=movie,
                            user=movie.user)  # Jetzt sollte user verfügbar sein
 
-
+#  Definition for the themes the AI uses for funfact generation
 themes = {
     'technology': "Groundbreaking film technologies and their first uses",
     'controversies': "Movie controversies, scandals and censorship battles",
@@ -237,6 +262,7 @@ themes = {
 
 @app.route('/funfact/<theme>')
 def themed_funfact(theme):
+    """Generates themed movie related fun facts using deepseek AI"""
     if theme not in themes:
         abort(404)
 
@@ -267,11 +293,15 @@ def themed_funfact(theme):
 
 @app.errorhandler(404)
 def page_not_found(e):
+    """handles 404 errors"""
     return render_template('404.html'), 404
+
 
 @app.errorhandler(500)
 def internal_error(e):
+    """handles server errors"""
     return render_template('500.html'), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5002)

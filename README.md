@@ -5,6 +5,9 @@ Feedback and contributions are welcome as I continue to grow as a developer!
 
 ![Project Screenshot](./Screenshot.png) 
 
+Credit for the background image: Thank you to Jamie Matociños (jamievalmat) on unsplash.com
+[Cinema Picture](https://unsplash.com/de/fotos/passende-weiss-schwarze-schnursneaker-IAs0Odki5YQ)
+
 ## 🎓 Educational Project
 
 This web application was developed as a **learning project** at Masterschool  to master:
