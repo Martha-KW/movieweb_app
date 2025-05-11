@@ -3,7 +3,7 @@ As my first project combining web development with AI capabilities, this represe
 
 Feedback and contributions are welcome as I continue to grow as a developer!
 
-![Project Screenshot](./images/Screenshot.png) <!-- Add a screenshot if available -->
+![Project Screenshot](./Screenshot.png) 
 
 ## 🎓 Educational Project
 
