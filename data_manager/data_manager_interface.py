@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class DataManagerInterface(ABC):
 
     @abstractmethod
@@ -14,7 +15,7 @@ class DataManagerInterface(ABC):
 
     @abstractmethod
     def movie_exists(self, user_id, title):
-        """Check if movie exists for user"""
+        """Check if movie exists for a user"""
         pass
 
     @abstractmethod
@@ -24,5 +25,4 @@ class DataManagerInterface(ABC):
 
     @abstractmethod
     def get_user_by_username(self, username):
-        """Get user by username"""
         pass
